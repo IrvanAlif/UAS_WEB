@@ -12,6 +12,7 @@
 @section('content')
 
 {{-- Stats --}}
+{{-- FIX: gunakan $todayCount dari controller, bukan query langsung di view --}}
 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 28px;">
     <div style="background:white; border:1px solid #e5e7eb; border-radius:10px; padding:20px;">
         <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.5px; color:#6b7280; margin-bottom:6px;">Total Published</div>
@@ -19,7 +20,7 @@
     </div>
     <div style="background:white; border:1px solid #e5e7eb; border-radius:10px; padding:20px;">
         <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.5px; color:#f97316; margin-bottom:6px;">Artikel Hari Ini</div>
-        <div style="font-size:28px; font-weight:800;">{{ \App\Models\Article::whereDate('created_at', today())->count() }}</div>
+        <div style="font-size:28px; font-weight:800;">{{ $todayCount }}</div>
     </div>
     <div style="background:white; border:1px solid #e5e7eb; border-radius:10px; padding:20px;">
         <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.5px; color:#10b981; margin-bottom:6px;">Growth Rate</div>
@@ -27,7 +28,6 @@
     </div>
 </div>
 
-{{-- Search alert -- letakkan DI SINI, di atas tabel --}}
 @if(request('search'))
 <div class="alert alert-success" style="margin-bottom: 16px;">
     <i class="fas fa-search"></i>

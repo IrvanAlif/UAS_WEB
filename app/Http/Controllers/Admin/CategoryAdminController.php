@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Cache;
 
 class CategoryAdminController extends Controller
 {
@@ -31,7 +32,11 @@ class CategoryAdminController extends Controller
             'slug' => Str::slug($request->name),
         ]);
 
-        return redirect()->route('admin.categories.index')->with('success', 'Kategori berhasil ditambahkan!');
+        // FIX: bust cache supaya navbar langsung update
+        Cache::forget('nav_categories');
+
+        return redirect()->route('admin.categories.index')
+            ->with('success', 'Kategori berhasil ditambahkan!');
     }
 
     public function edit($id)
@@ -53,7 +58,10 @@ class CategoryAdminController extends Controller
             'slug' => Str::slug($request->name),
         ]);
 
-        return redirect()->route('admin.categories.index')->with('success', 'Kategori berhasil diperbarui!');
+        Cache::forget('nav_categories');
+
+        return redirect()->route('admin.categories.index')
+            ->with('success', 'Kategori berhasil diperbarui!');
     }
 
     public function destroy($id)
@@ -61,6 +69,9 @@ class CategoryAdminController extends Controller
         $category = Category::findOrFail($id);
         $category->delete();
 
-        return redirect()->route('admin.categories.index')->with('success', 'Kategori berhasil dihapus!');
+        Cache::forget('nav_categories');
+
+        return redirect()->route('admin.categories.index')
+            ->with('success', 'Kategori berhasil dihapus!');
     }
 }

@@ -9,12 +9,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
 
 class ArticleAdminController extends Controller
 {
     public function index()
     {
         $search = request('search');
+
         $articles = Article::with(['category', 'user'])
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($sub) use ($search) {
@@ -25,12 +27,15 @@ class ArticleAdminController extends Controller
             ->latest()
             ->paginate(10);
 
-        return view('admin.articles.index', compact('articles', 'search'));
+        // FIX: pindah query dari view ke controller
+        $todayCount = Article::whereDate('created_at', today())->count();
+
+        return view('admin.articles.index', compact('articles', 'search', 'todayCount'));
     }
 
     public function create(): \Illuminate\View\View
     {
-        $categories = Category::all();
+        $categories = Category::orderBy('name')->get();
         return view('admin.articles.create', compact('categories'));
     }
 
@@ -40,7 +45,7 @@ class ArticleAdminController extends Controller
             'title'       => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
             'content'     => 'required|string',
-            'image'       => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'image'       => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
         $imagePath = null;
@@ -52,18 +57,23 @@ class ArticleAdminController extends Controller
             'user_id'     => Auth::id(),
             'category_id' => $request->input('category_id'),
             'title'       => $request->input('title'),
-            'slug'        => Str::slug($request->input('title')) . '-' . Str::random(5),
+            'slug'        => $this->generateUniqueSlug($request->input('title')),
             'image'       => $imagePath,
-            'content'     => $request->input('content'),
+            // FIX XSS: sanitasi konten sebelum disimpan
+            'content'     => Article::sanitizeContent($request->input('content')),
         ]);
 
-        return redirect()->route('admin.articles.index')->with('success', 'Artikel berhasil ditambahkan!');
+        // FIX: bust cache nav_categories jika ada perubahan artikel
+        Cache::forget('nav_categories');
+
+        return redirect()->route('admin.articles.index')
+            ->with('success', 'Artikel berhasil ditambahkan!');
     }
 
     public function edit(int $id): \Illuminate\View\View
     {
         $article    = Article::findOrFail($id);
-        $categories = Category::all();
+        $categories = Category::orderBy('name')->get();
         return view('admin.articles.edit', compact('article', 'categories'));
     }
 
@@ -75,7 +85,7 @@ class ArticleAdminController extends Controller
             'title'       => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
             'content'     => 'required|string',
-            'image'       => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'image'       => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
         $imagePath = $article->image;
@@ -86,17 +96,24 @@ class ArticleAdminController extends Controller
             $imagePath = $request->file('image')->store('articles', 'public');
         }
 
+        // FIX: hanya regenerate slug jika judul berubah
+        $newSlug = $article->title !== $request->input('title')
+            ? $this->generateUniqueSlug($request->input('title'), $article->id)
+            : $article->slug;
+
         $article->update([
             'category_id' => $request->input('category_id'),
             'title'       => $request->input('title'),
-            'slug'        => $article->title !== $request->input('title')
-                ? Str::slug($request->input('title')) . '-' . Str::random(5)
-                : $article->slug,
+            'slug'        => $newSlug,
             'image'       => $imagePath,
-            'content'     => $request->input('content'),
+            // FIX XSS: sanitasi konten sebelum disimpan
+            'content'     => Article::sanitizeContent($request->input('content')),
         ]);
 
-        return redirect()->route('admin.articles.index')->with('success', 'Artikel berhasil diperbarui!');
+        Cache::forget('nav_categories');
+
+        return redirect()->route('admin.articles.index')
+            ->with('success', 'Artikel berhasil diperbarui!');
     }
 
     public function destroy(int $id): \Illuminate\Http\RedirectResponse
@@ -107,6 +124,30 @@ class ArticleAdminController extends Controller
         }
         $article->delete();
 
-        return redirect()->route('admin.articles.index')->with('success', 'Artikel berhasil dihapus!');
+        Cache::forget('nav_categories');
+
+        return redirect()->route('admin.articles.index')
+            ->with('success', 'Artikel berhasil dihapus!');
+    }
+
+    /**
+     * Generate slug unik — cek duplikat di DB dan tambah suffix jika perlu.
+     */
+    private function generateUniqueSlug(string $title, ?int $exceptId = null): string
+    {
+        $base = Str::slug($title);
+        $slug = $base;
+        $i    = 1;
+
+        while (
+            Article::where('slug', $slug)
+            ->when($exceptId, fn($q) => $q->where('id', '!=', $exceptId))
+            ->exists()
+        ) {
+            $slug = $base . '-' . $i;
+            $i++;
+        }
+
+        return $slug;
     }
 }

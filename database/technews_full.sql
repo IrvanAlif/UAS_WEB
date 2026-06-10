@@ -2,6 +2,11 @@
 -- TechNews - Portal Berita Teknologi
 -- SQL Import untuk Hosting (phpMyAdmin)
 -- =========================================================
+-- PENTING: Sebelum import ke production, ganti password hash
+-- di bawah dengan hash baru menggunakan:
+--   php artisan tinker
+--   >>> \Hash::make('password_baru_kamu')
+-- =========================================================
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -115,9 +120,12 @@ CREATE TABLE IF NOT EXISTS `articles` (
 -- DATA AWAL
 -- =========================================================
 
--- Admin user (password: password)
+-- FIX: Hash di bawah ini adalah PLACEHOLDER.
+-- WAJIB diganti sebelum production dengan:
+--   php artisan tinker → \Hash::make('password_baru')
+-- Hash default '$2y$12$92IXUNpkjO0...' adalah hash publik yang diketahui semua developer Laravel!
 INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `password`, `role`, `created_at`, `updated_at`) VALUES
-(1, 'Admin TechNews', 'admin@technews.com', NOW(), '$2y$12$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', NOW(), NOW());
+(1, 'Admin TechNews', 'admin@technews.com', NOW(), 'GANTI_DENGAN_HASH_BARU', 'admin', NOW(), NOW());
 
 -- Kategori
 INSERT INTO `categories` (`id`, `name`, `slug`, `created_at`, `updated_at`) VALUES
@@ -130,31 +138,25 @@ INSERT INTO `categories` (`id`, `name`, `slug`, `created_at`, `updated_at`) VALU
 -- Artikel sample
 INSERT INTO `articles` (`id`, `user_id`, `category_id`, `title`, `slug`, `image`, `content`, `created_at`, `updated_at`) VALUES
 (1, 1, 1, 'Revolusi AI dalam Kehidupan Sehari-hari', 'revolusi-ai-dalam-kehidupan-sehari-hari', NULL,
-'<p>Bagaimana integrasi model bahasa besar dan visi komputer mulai mengubah cara kita bekerja, berinteraksi, dan memecahkan masalah kompleks setiap hari.</p><h2>Era Baru Kecerdasan Buatan</h2><p>Kecerdasan buatan telah berkembang jauh melampaui ekspektasi para peneliti dekade lalu. Model-model bahasa besar seperti GPT, Claude, dan Gemini kini mampu memahami konteks percakapan yang kompleks, menghasilkan konten berkualitas tinggi, dan bahkan membantu dalam pengambilan keputusan strategis bisnis.</p><p>Di bidang kesehatan, AI telah membantu dokter dalam mendiagnosis penyakit dengan akurasi yang lebih tinggi. Di sektor keuangan, algoritma machine learning mendeteksi penipuan dalam hitungan milidetik. Bahkan di dunia seni, AI generatif menciptakan karya visual dan musik yang mengesankan.</p><h2>Tantangan yang Dihadapi</h2><p>Namun, revolusi ini tidak tanpa tantangan. Isu etika seputar privasi data, bias algoritmik, dan dampak terhadap lapangan kerja menjadi perdebatan hangat di berbagai forum global. Regulasi AI yang komprehensif masih terus dikembangkan oleh berbagai negara.</p>',
+'<p>Bagaimana integrasi model bahasa besar dan visi komputer mulai mengubah cara kita bekerja, berinteraksi, dan memecahkan masalah kompleks setiap hari.</p><h2>Era Baru Kecerdasan Buatan</h2><p>Kecerdasan buatan telah berkembang jauh melampaui ekspektasi para peneliti dekade lalu.</p>',
 DATE_SUB(NOW(), INTERVAL 12 DAY), DATE_SUB(NOW(), INTERVAL 12 DAY)),
-
 (2, 1, 2, 'Review Gadget Terbaru: Flagship yang Mengubah Standar Kamera', 'review-gadget-terbaru-flagship-yang-mengubah-standar-kamera', NULL,
-'<p>Smartphone flagship tahun ini hadir dengan sensor kamera yang belum pernah ada sebelumnya, menghadirkan kualitas foto setara kamera profesional di genggaman tangan.</p><h2>Spesifikasi Kamera Revolusioner</h2><p>Dengan sensor 1-inch yang dilengkapi teknologi computational photography terbaru, smartphone ini mampu menghasilkan foto dengan dynamic range yang luar biasa bahkan dalam kondisi cahaya rendah. Fitur zoom periskop 10x memberikan detail yang tajam dari jarak jauh tanpa distorsi.</p><p>Video 8K dengan stabilisasi optis generasi keempat memastikan setiap momen terekam dengan sempurna. Mode sinematik yang ditingkatkan memungkinkan pengguna menciptakan karya videografi berkualitas profesional hanya dengan sentuhan jari.</p>',
+'<p>Smartphone flagship tahun ini hadir dengan sensor kamera yang belum pernah ada sebelumnya.</p>',
 DATE_SUB(NOW(), INTERVAL 10 DAY), DATE_SUB(NOW(), INTERVAL 10 DAY)),
-
 (3, 1, 3, 'Tips Programming 2024: Framework yang Wajib Dikuasai', 'tips-programming-2024-framework-yang-wajib-dikuasai', NULL,
-'<p>Dunia pemrograman terus berkembang dengan cepat. Berikut adalah framework dan teknologi yang wajib dikuasai oleh setiap developer di tahun 2024 untuk tetap relevan di industri.</p><h2>Frontend: React vs Vue vs Svelte</h2><p>React masih mendominasi pasar dengan ekosistem yang matang dan komunitas yang besar. Namun, Vue terus menunjukkan pertumbuhan yang signifikan, terutama di Asia Tenggara. Svelte muncul sebagai alternatif yang menarik dengan pendekatan compile-time yang inovatif.</p><h2>Backend: Laravel dan Node.js</h2><p>Laravel tetap menjadi pilihan utama untuk pengembangan web dengan PHP. Framework ini menawarkan ekosistem yang lengkap mulai dari ORM Eloquent, sistem antrian, hingga real-time broadcasting. Di sisi lain, Node.js dengan Express dan NestJS semakin populer untuk membangun API yang scalable.</p>',
+'<p>Dunia pemrograman terus berkembang dengan cepat.</p>',
 DATE_SUB(NOW(), INTERVAL 8 DAY), DATE_SUB(NOW(), INTERVAL 8 DAY)),
-
 (4, 1, 4, 'Ancaman Siber Baru Menargetkan Infrastruktur Cloud Global', 'ancaman-siber-baru-menargetkan-infrastruktur-cloud-global', NULL,
-'<p>Para peneliti keamanan siber telah mengidentifikasi serangkaian serangan canggih yang menargetkan infrastruktur cloud dari berbagai penyedia layanan besar di seluruh dunia.</p><h2>Modus Operandi Penyerang</h2><p>Serangan ini menggunakan teknik supply chain attack yang memanfaatkan kerentanan dalam dependensi pihak ketiga. Dengan menyisipkan kode berbahaya ke dalam library yang banyak digunakan, penyerang berhasil mendapatkan akses ke ribuan sistem sekaligus.</p><p>Teknik lateral movement yang digunakan sangat canggih, memungkinkan penyerang bergerak diam-diam dalam jaringan selama berbulan-bulan tanpa terdeteksi oleh sistem keamanan konvensional.</p>',
+'<p>Para peneliti keamanan siber telah mengidentifikasi serangkaian serangan canggih.</p>',
 DATE_SUB(NOW(), INTERVAL 6 DAY), DATE_SUB(NOW(), INTERVAL 6 DAY)),
-
 (5, 1, 5, 'Optimasi Software: Mengurangi Latensi hingga 40%', 'optimasi-software-mengurangi-latensi-hingga-40-persen', NULL,
-'<p>Tim engineering dari beberapa perusahaan teknologi terkemuka berbagi strategi dan teknik yang telah terbukti efektif dalam mengurangi latensi aplikasi secara signifikan.</p><h2>Database Query Optimization</h2><p>Salah satu penyebab utama latensi tinggi adalah query database yang tidak optimal. Penggunaan indeks yang tepat, query caching, dan teknik denormalisasi yang bijak dapat mengurangi waktu respons database hingga 60%.</p><h2>Caching Strategy</h2><p>Implementasi strategi caching berlapis menggunakan Redis untuk in-memory caching dan CDN untuk static assets telah terbukti mengurangi beban server secara drastis. Teknik cache warming dan cache invalidation yang cerdas memastikan data selalu fresh tanpa mengorbankan performa.</p>',
+'<p>Tim engineering berbagi strategi yang terbukti efektif mengurangi latensi aplikasi.</p>',
 DATE_SUB(NOW(), INTERVAL 4 DAY), DATE_SUB(NOW(), INTERVAL 4 DAY)),
-
 (6, 1, 1, 'Kolaborasi Manusia dan Mesin di Era Industri 5.0', 'kolaborasi-manusia-dan-mesin-di-era-industri-5-0', NULL,
-'<p>Industri 5.0 membawa paradigma baru: bukan lagi tentang menggantikan manusia dengan mesin, melainkan menciptakan sinergi yang menghasilkan output lebih baik dari keduanya.</p><h2>Human-Centric Automation</h2><p>Berbeda dengan Industri 4.0 yang berfokus pada otomasi penuh, Industri 5.0 menempatkan manusia sebagai pusat dari proses produksi. Robot kolaboratif atau cobot dirancang untuk bekerja berdampingan dengan pekerja manusia, mengambil alih tugas-tugas yang repetitif dan berbahaya.</p><p>Dengan pendekatan ini, kreativitas dan kemampuan pemecahan masalah manusia dapat dipadukan dengan kecepatan dan presisi mesin, menghasilkan produktivitas yang jauh melebihi kemampuan keduanya secara terpisah.</p>',
+'<p>Industri 5.0 membawa paradigma baru tentang sinergi manusia dan mesin.</p>',
 DATE_SUB(NOW(), INTERVAL 2 DAY), DATE_SUB(NOW(), INTERVAL 2 DAY)),
-
 (7, 1, 2, 'Teknologi Audio Spasial Terbaru: Pengalaman Imersif Tanpa Batas', 'teknologi-audio-spasial-terbaru-pengalaman-imersif-tanpa-batas', NULL,
-'<p>Teknologi audio spasial telah mencapai tingkat kecanggihan baru yang menghadirkan pengalaman mendengarkan yang benar-benar imersif, seolah suara hadir di sekitar kita.</p><h2>Head-Related Transfer Function (HRTF)</h2><p>Teknologi HRTF yang dipersonalisasi menggunakan data dari bentuk telinga unik setiap pengguna menciptakan pengalaman audio 3D yang jauh lebih akurat dan natural dibandingkan generasi sebelumnya.</p><h2>Aplikasi di Berbagai Bidang</h2><p>Teknologi ini tidak hanya relevan untuk hiburan. Di bidang medis, audio spasial digunakan untuk terapi gangguan pendengaran. Dalam gaming, menciptakan immersion yang belum pernah ada sebelumnya. Di dunia pendidikan, memungkinkan simulasi lingkungan belajar yang lebih efektif.</p>',
+'<p>Teknologi audio spasial mencapai tingkat kecanggihan baru yang benar-benar imersif.</p>',
 DATE_SUB(NOW(), INTERVAL 1 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY));
 
 -- Migrations records
