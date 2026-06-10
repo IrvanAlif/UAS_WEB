@@ -1,58 +1,186 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# TechNews - Portal Berita Teknologi
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Portal berita teknologi berbasis Laravel dengan fitur carousel, login admin, dan CRUD artikel & kategori.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🚀 Cara Install & Jalankan (Lokal)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Prasyarat
+- PHP >= 8.2
+- MySQL / MariaDB
+- Composer
+- Node.js (opsional, untuk build assets)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Langkah Instalasi
 
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
+**1. Clone atau extract project ini ke folder htdocs/www**
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+# Jika dari git
+git clone <repo_url> technews
+cd technews
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+**2. Install dependensi PHP**
+```bash
+composer install
+```
 
-## Contributing
+**3. Copy file .env**
+```bash
+cp .env.example .env
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+**4. Generate App Key**
+```bash
+php artisan key:generate
+```
 
-## Code of Conduct
+**5. Konfigurasi Database**
+Buka file `.env` dan sesuaikan:
+```
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=berita_teknologi
+DB_USERNAME=root
+DB_PASSWORD=
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+**6. Buat database & import struktur**
+```bash
+# Buat database di phpMyAdmin atau via MySQL:
+mysql -u root -p -e "CREATE DATABASE berita_teknologi;"
 
-## Security Vulnerabilities
+# Jalankan migrasi
+php artisan migrate
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+# Atau import SQL dari file berita_teknologi.sql
+# mysql -u root -p berita_teknologi < berita_teknologi.sql
+```
 
-## License
+**7. Jalankan seeder (data sample)**
+```bash
+php artisan db:seed
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+**8. Buat symlink storage**
+```bash
+php artisan storage:link
+```
+
+**9. Jalankan server**
+```bash
+php artisan serve
+```
+
+Buka: **http://localhost:8000**
+
+---
+
+## 🔑 Akun Default
+| Email | Password | Role |
+|-------|----------|------|
+| admin@technews.com | password | Admin |
+
+---
+
+## 🌐 Cara Deploy ke Hosting (cPanel / DirectAdmin)
+
+### 1. Upload Files
+- Upload **semua file project** ke `public_html/` (atau subfolder, cth: `public_html/technews/`)
+- Pastikan folder `public/` Laravel ada di dalam folder web root
+
+### 2. Konfigurasi Document Root
+Di cPanel → **Domains / Subdomains** → arahkan document root ke folder `public/` project Laravel:
+```
+/home/username/public_html/technews/public
+```
+
+Atau jika tidak bisa, pindahkan isi folder `public/` ke `public_html/` dan edit `index.php`:
+```php
+// Ubah path ini di public/index.php
+require __DIR__.'/../vendor/autoload.php';
+// Jika public/ dipindah ke root, sesuaikan path ke ..
+```
+
+### 3. Buat Database di Hosting
+- Masuk cPanel → **MySQL Databases**
+- Buat database: `berita_teknologi`
+- Buat user MySQL dan assign ke database
+- Import file `berita_teknologi.sql` via phpMyAdmin
+
+### 4. Konfigurasi .env di Hosting
+Edit file `.env`:
+```
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://domainanda.com
+
+DB_HOST=localhost
+DB_DATABASE=username_beritateknologi
+DB_USERNAME=username_dbuser
+DB_PASSWORD=password_db
+```
+
+### 5. Jalankan Artisan Commands
+Via SSH atau Terminal di cPanel:
+```bash
+php artisan key:generate
+php artisan migrate --seed
+php artisan storage:link
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+```
+
+### 6. Permission Folder
+```bash
+chmod -R 755 storage bootstrap/cache
+chmod -R 644 .env
+```
+
+---
+
+## 📁 Struktur Halaman
+
+### Public
+| URL | Halaman |
+|-----|---------|
+| `/` | Home dengan carousel |
+| `/artikel/{slug}` | Detail berita |
+| `/kategori/{slug}` | Berita per kategori |
+| `/search?q=keyword` | Pencarian |
+
+### Admin (Login required)
+| URL | Halaman |
+|-----|---------|
+| `/login` | Halaman login |
+| `/admin/dashboard` | Dashboard overview |
+| `/admin/articles` | Kelola artikel (CRUD) |
+| `/admin/categories` | Kelola kategori (CRUD) |
+
+---
+
+## ✨ Fitur
+- ✅ Carousel/slider berita utama (5 slide, auto-rotate)
+- ✅ Login admin dengan session
+- ✅ CRUD Artikel (tambah, edit, hapus, list)
+- ✅ CRUD Kategori
+- ✅ Upload gambar artikel
+- ✅ Filter berita per kategori
+- ✅ Pencarian artikel
+- ✅ Halaman detail artikel dengan berita terkait
+- ✅ Responsive design
+- ✅ Pagination
+- ✅ 7 artikel & 5 kategori sample
+
+---
+
+## 🛠 Tech Stack
+- **Laravel 12** (PHP Framework)
+- **MySQL** (Database)
+- **Blade Templates** (View engine)
+- **Vanilla CSS** (Styling, no framework)
+- **Font Awesome 6** (Icons)
+- **Google Fonts Inter** (Typography)
