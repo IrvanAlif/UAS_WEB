@@ -26,7 +26,7 @@ class Article extends Model
         if ($this->image) {
             return asset('storage/' . $this->image);
         }
-        return asset('images/placeholder.jpg');
+        return asset('images/placeholder.svg');
     }
 
     public function getExcerptAttribute()

@@ -5,7 +5,7 @@
 
 @section('content')
 <div class="container" style="padding-top: 40px; padding-bottom: 64px;">
-    <div style="display: grid; grid-template-columns: 1fr 320px; gap: 48px; align-items: start;">
+    <div class="article-detail-grid">
         <article>
             {{-- Breadcrumb & meta --}}
             <div style="display:flex; align-items:center; gap:8px; margin-bottom:20px; font-size:13px; color:#6b7280;">
@@ -100,6 +100,12 @@
 
 @push('styles')
 <style>
+.article-detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 48px;
+    align-items: start;
+}
 .article-content { font-size: 16px; line-height: 1.8; color: #1f2937; }
 .article-content h2 { font-size: 22px; font-weight: 700; margin: 28px 0 12px; color: #0f172a; }
 .article-content h3 { font-size: 18px; font-weight: 600; margin: 24px 0 10px; }
@@ -112,7 +118,7 @@
 .article-content li { margin-bottom: 6px; }
 .article-content img { border-radius: 8px; margin: 16px 0; }
 @media(max-width:768px) {
-    .container > div[style*="grid"] { grid-template-columns: 1fr !important; }
+    .article-detail-grid { grid-template-columns: 1fr; }
     h1[style*="36px"] { font-size: 24px !important; }
 }
 </style>

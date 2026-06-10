@@ -240,7 +240,7 @@
                     Kategori <i class="fas fa-chevron-down" style="font-size:10px;"></i>
                 </a>
                 <div class="dropdown-menu">
-                    @foreach(\App\Models\Category::all() as $cat)
+                    @foreach($navCategories as $cat)
                     <a href="{{ route('category', $cat->slug) }}">{{ $cat->name }}</a>
                     @endforeach
                 </div>

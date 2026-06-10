@@ -17,8 +17,10 @@ class ArticleAdminController extends Controller
         $search = request('search');
         $articles = Article::with(['category', 'user'])
             ->when($search, function ($q) use ($search) {
-                $q->where('title', 'like', "%{$search}%")
-                    ->orWhere('content', 'like', "%{$search}%");
+                $q->where(function ($sub) use ($search) {
+                    $sub->where('title', 'like', "%{$search}%")
+                        ->orWhere('content', 'like', "%{$search}%");
+                });
             })
             ->latest()
             ->paginate(10);

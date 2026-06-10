@@ -609,10 +609,8 @@
             </a>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit" style="width:100%; background:none; border:none; cursor:pointer; text-align:left; font-family:inherit;">
-                    <a class="logout-link" style="display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:8px; font-size:14px; font-weight:500; color:#dc2626;">
-                        <i class="fas fa-sign-out-alt"></i> Logout
-                    </a>
+                <button type="submit" class="logout-link" style="width:100%; background:none; border:none; cursor:pointer; text-align:left; font-family:inherit; display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:8px; font-size:14px; font-weight:500; color:#dc2626;">
+                    <i class="fas fa-sign-out-alt"></i> Logout
                 </button>
             </form>
         </div>
