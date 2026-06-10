@@ -4,9 +4,9 @@
 @section('page-title', 'Kelola Artikel')
 
 @section('topbar-action')
-    <a href="{{ route('admin.articles.create') }}" class="btn-new">
-        <i class="fas fa-plus"></i> Tambah Artikel
-    </a>
+<a href="{{ route('admin.articles.create') }}" class="btn-new">
+    <i class="fas fa-plus"></i> Tambah Artikel
+</a>
 @endsection
 
 @section('content')
@@ -27,6 +27,18 @@
     </div>
 </div>
 
+{{-- Search alert -- letakkan DI SINI, di atas tabel --}}
+@if(request('search'))
+<div class="alert alert-success" style="margin-bottom: 16px;">
+    <i class="fas fa-search"></i>
+    Hasil pencarian "<strong>{{ request('search') }}</strong>" —
+    {{ $articles->total() }} artikel ditemukan.
+    <a href="{{ route('admin.articles.index') }}" style="margin-left: 8px; color: #065f46; font-weight: 600;">
+        × Hapus filter
+    </a>
+</div>
+@endif
+
 <div class="table-card">
     <table>
         <thead>
@@ -43,11 +55,11 @@
             <tr>
                 <td>
                     @if($article->image)
-                        <img src="{{ $article->image_url }}" style="width:44px; height:44px; object-fit:cover; border-radius:6px;">
+                    <img src="{{ $article->image_url }}" style="width:44px; height:44px; object-fit:cover; border-radius:6px;">
                     @else
-                        <div style="width:44px; height:44px; background:#dbeafe; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#2563eb;">
-                            <i class="fas fa-newspaper"></i>
-                        </div>
+                    <div style="width:44px; height:44px; background:#dbeafe; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#2563eb;">
+                        <i class="fas fa-newspaper"></i>
+                    </div>
                     @endif
                 </td>
                 <td>
@@ -66,7 +78,7 @@
                             <i class="fas fa-pen"></i>
                         </a>
                         <form method="POST" action="{{ route('admin.articles.destroy', $article->id) }}"
-                              onsubmit="return confirm('Hapus artikel ini?')">
+                            onsubmit="return confirm('Hapus artikel ini?')">
                             @csrf @method('DELETE')
                             <button type="submit" class="btn-delete" title="Hapus">
                                 <i class="fas fa-trash"></i>
@@ -79,7 +91,11 @@
             <tr>
                 <td colspan="5" style="text-align:center; padding:48px; color:#9ca3af;">
                     <i class="fas fa-newspaper" style="font-size:32px; display:block; margin-bottom:12px;"></i>
+                    @if(request('search'))
+                    Tidak ada artikel dengan kata kunci "{{ request('search') }}".
+                    @else
                     Belum ada artikel. <a href="{{ route('admin.articles.create') }}" style="color:#2563eb;">Tambah sekarang</a>
+                    @endif
                 </td>
             </tr>
             @endforelse

@@ -14,17 +14,25 @@ class ArticleAdminController extends Controller
 {
     public function index()
     {
-        $articles = Article::with(['category', 'user'])->latest()->paginate(10);
-        return view('admin.articles.index', compact('articles'));
+        $search = request('search');
+        $articles = Article::with(['category', 'user'])
+            ->when($search, function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('content', 'like', "%{$search}%");
+            })
+            ->latest()
+            ->paginate(10);
+
+        return view('admin.articles.index', compact('articles', 'search'));
     }
 
-    public function create()
+    public function create(): \Illuminate\View\View
     {
         $categories = Category::all();
         return view('admin.articles.create', compact('categories'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request): \Illuminate\Http\RedirectResponse
     {
         $request->validate([
             'title'       => 'required|string|max:255',
@@ -40,24 +48,24 @@ class ArticleAdminController extends Controller
 
         Article::create([
             'user_id'     => Auth::id(),
-            'category_id' => $request->category_id,
-            'title'       => $request->title,
-            'slug'        => Str::slug($request->title) . '-' . Str::random(5),
+            'category_id' => $request->input('category_id'),
+            'title'       => $request->input('title'),
+            'slug'        => Str::slug($request->input('title')) . '-' . Str::random(5),
             'image'       => $imagePath,
-            'content'     => $request->content,
+            'content'     => $request->input('content'),
         ]);
 
         return redirect()->route('admin.articles.index')->with('success', 'Artikel berhasil ditambahkan!');
     }
 
-    public function edit($id)
+    public function edit(int $id): \Illuminate\View\View
     {
-        $article = Article::findOrFail($id);
+        $article    = Article::findOrFail($id);
         $categories = Category::all();
         return view('admin.articles.edit', compact('article', 'categories'));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): \Illuminate\Http\RedirectResponse
     {
         $article = Article::findOrFail($id);
 
@@ -70,25 +78,31 @@ class ArticleAdminController extends Controller
 
         $imagePath = $article->image;
         if ($request->hasFile('image')) {
-            if ($imagePath) Storage::disk('public')->delete($imagePath);
+            if ($imagePath) {
+                Storage::disk('public')->delete($imagePath);
+            }
             $imagePath = $request->file('image')->store('articles', 'public');
         }
 
         $article->update([
-            'category_id' => $request->category_id,
-            'title'       => $request->title,
-            'slug'        => Str::slug($request->title) . '-' . Str::random(5),
+            'category_id' => $request->input('category_id'),
+            'title'       => $request->input('title'),
+            'slug'        => $article->title !== $request->input('title')
+                ? Str::slug($request->input('title')) . '-' . Str::random(5)
+                : $article->slug,
             'image'       => $imagePath,
-            'content'     => $request->content,
+            'content'     => $request->input('content'),
         ]);
 
         return redirect()->route('admin.articles.index')->with('success', 'Artikel berhasil diperbarui!');
     }
 
-    public function destroy($id)
+    public function destroy(int $id): \Illuminate\Http\RedirectResponse
     {
         $article = Article::findOrFail($id);
-        if ($article->image) Storage::disk('public')->delete($article->image);
+        if ($article->image) {
+            Storage::disk('public')->delete($article->image);
+        }
         $article->delete();
 
         return redirect()->route('admin.articles.index')->with('success', 'Artikel berhasil dihapus!');
