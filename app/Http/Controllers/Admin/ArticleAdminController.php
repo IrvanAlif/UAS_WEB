@@ -27,10 +27,31 @@ class ArticleAdminController extends Controller
             ->latest()
             ->paginate(10);
 
-        // FIX: pindah query dari view ke controller
         $todayCount = Article::whereDate('created_at', today())->count();
 
-        return view('admin.articles.index', compact('articles', 'search', 'todayCount'));
+        // FIX: growth rate dihitung nyata
+        $thisMonth = Article::whereYear('created_at', now()->year)
+            ->whereMonth('created_at', now()->month)->count();
+        $lastMonth = Article::whereYear('created_at', now()->subMonth()->year)
+            ->whereMonth('created_at', now()->subMonth()->month)->count();
+
+        if ($lastMonth > 0) {
+            $growthRate = round((($thisMonth - $lastMonth) / $lastMonth) * 100);
+        } elseif ($thisMonth > 0) {
+            $growthRate = 100;
+        } else {
+            $growthRate = 0;
+        }
+        $growthLabel = ($growthRate >= 0 ? '+' : '') . $growthRate . '%';
+        $growthColor = $growthRate >= 0 ? '#10b981' : '#dc2626';
+
+        return view('admin.articles.index', compact(
+            'articles',
+            'search',
+            'todayCount',
+            'growthLabel',
+            'growthColor'
+        ));
     }
 
     public function create(): \Illuminate\View\View
@@ -59,11 +80,9 @@ class ArticleAdminController extends Controller
             'title'       => $request->input('title'),
             'slug'        => $this->generateUniqueSlug($request->input('title')),
             'image'       => $imagePath,
-            // FIX XSS: sanitasi konten sebelum disimpan
             'content'     => Article::sanitizeContent($request->input('content')),
         ]);
 
-        // FIX: bust cache nav_categories jika ada perubahan artikel
         Cache::forget('nav_categories');
 
         return redirect()->route('admin.articles.index')
@@ -89,6 +108,13 @@ class ArticleAdminController extends Controller
         ]);
 
         $imagePath = $article->image;
+
+        // FIX #7: fitur hapus gambar tanpa upload baru
+        if ($request->boolean('remove_image') && $imagePath) {
+            Storage::disk('public')->delete($imagePath);
+            $imagePath = null;
+        }
+
         if ($request->hasFile('image')) {
             if ($imagePath) {
                 Storage::disk('public')->delete($imagePath);
@@ -96,7 +122,6 @@ class ArticleAdminController extends Controller
             $imagePath = $request->file('image')->store('articles', 'public');
         }
 
-        // FIX: hanya regenerate slug jika judul berubah
         $newSlug = $article->title !== $request->input('title')
             ? $this->generateUniqueSlug($request->input('title'), $article->id)
             : $article->slug;
@@ -106,7 +131,6 @@ class ArticleAdminController extends Controller
             'title'       => $request->input('title'),
             'slug'        => $newSlug,
             'image'       => $imagePath,
-            // FIX XSS: sanitasi konten sebelum disimpan
             'content'     => Article::sanitizeContent($request->input('content')),
         ]);
 
@@ -130,9 +154,6 @@ class ArticleAdminController extends Controller
             ->with('success', 'Artikel berhasil dihapus!');
     }
 
-    /**
-     * Generate slug unik — cek duplikat di DB dan tambah suffix jika perlu.
-     */
     private function generateUniqueSlug(string $title, ?int $exceptId = null): string
     {
         $base = Str::slug($title);

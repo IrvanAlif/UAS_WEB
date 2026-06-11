@@ -5,7 +5,7 @@
 
 @section('topbar-action')
     <a href="{{ route('admin.articles.create') }}" class="btn-new">
-        <i class="fas fa-plus"></i> New Post
+        <i class="fas fa-plus"></i> <span>New Post</span>
     </a>
 @endsection
 
@@ -44,42 +44,48 @@
     </div>
 </div>
 
-<div style="display: grid; grid-template-columns: 1fr 300px; gap: 24px;">
+{{-- Dashboard Grid: tabel + popular categories --}}
+<div class="dashboard-grid">
     {{-- Latest articles --}}
     <div class="table-card">
         <div class="table-card-header">
             <div class="table-card-title">Artikel Terbaru</div>
             <a href="{{ route('admin.articles.index') }}" style="font-size:14px; color:#2563eb; font-weight:500;">Lihat Semua</a>
         </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>Judul</th>
-                    <th>Kategori</th>
-                    <th>Tanggal</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($latestArticles as $article)
-                <tr>
-                    <td>
-                        <a href="{{ route('article.show', $article->slug) }}" target="_blank" style="font-weight:600; color:#111827; font-size:14px;">
-                            {{ \Str::limit($article->title, 45) }}
-                        </a>
-                    </td>
-                    <td>
-                        <span class="badge" style="background:#dbeafe; color:#1d4ed8;">{{ $article->category->name }}</span>
-                    </td>
-                    <td style="color:#6b7280; font-size:13px;">
-                        {{ \Carbon\Carbon::parse($article->created_at)->isoFormat('DD MMM YYYY') }}
-                    </td>
-                </tr>
-                @endforeach
-                @if($latestArticles->isEmpty())
-                <tr><td colspan="3" style="text-align:center; color:#9ca3af; padding:32px;">Belum ada artikel</td></tr>
-                @endif
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Judul</th>
+                        <th>Kategori</th>
+                        <th>Tanggal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($latestArticles as $article)
+                    <tr>
+                        <td>
+                            <a href="{{ route('article.show', $article->slug) }}" target="_blank"
+                               style="font-weight:600; color:#111827; font-size:14px;">
+                                {{ \Str::limit($article->title, 45) }}
+                            </a>
+                        </td>
+                        <td>
+                            <span class="badge" style="background:#dbeafe; color:#1d4ed8;">{{ $article->category->name }}</span>
+                        </td>
+                        <td style="color:#6b7280; font-size:13px;">
+                            {{ \Carbon\Carbon::parse($article->created_at)->isoFormat('DD MMM YYYY') }}
+                        </td>
+                    </tr>
+                    @endforeach
+                    @if($latestArticles->isEmpty())
+                    <tr>
+                        <td colspan="3" style="text-align:center; color:#9ca3af; padding:32px;">Belum ada artikel</td>
+                    </tr>
+                    @endif
+                </tbody>
+            </table>
+        </div>
     </div>
 
     {{-- Popular categories --}}

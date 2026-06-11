@@ -2,10 +2,13 @@
 -- TechNews - Portal Berita Teknologi
 -- SQL Import untuk Hosting (phpMyAdmin)
 -- =========================================================
--- PENTING: Sebelum import ke production, ganti password hash
--- di bawah dengan hash baru menggunakan:
---   php artisan tinker
---   >>> \Hash::make('password_baru_kamu')
+-- CARA GENERATE PASSWORD HASH YANG BENAR:
+--   1. Jalankan: php artisan tinker
+--   2. Ketik: echo \Hash::make('password_kamu_di_sini');
+--   3. Copy hasilnya, paste di bagian INSERT users di bawah
+--
+-- ATAU gunakan DatabaseSeeder saja:
+--   php artisan migrate --seed
 -- =========================================================
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
@@ -120,12 +123,11 @@ CREATE TABLE IF NOT EXISTS `articles` (
 -- DATA AWAL
 -- =========================================================
 
--- FIX: Hash di bawah ini adalah PLACEHOLDER.
--- WAJIB diganti sebelum production dengan:
---   php artisan tinker → \Hash::make('password_baru')
--- Hash default '$2y$12$92IXUNpkjO0...' adalah hash publik yang diketahui semua developer Laravel!
+-- FIX: WAJIB ganti hash di bawah sebelum import!
+-- Jalankan: php artisan tinker → echo \Hash::make('password_baru');
+-- Hash contoh di bawah adalah DUMMY — login TIDAK akan berhasil sebelum diganti.
 INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `password`, `role`, `created_at`, `updated_at`) VALUES
-(1, 'Admin TechNews', 'admin@technews.com', NOW(), 'GANTI_DENGAN_HASH_BARU', 'admin', NOW(), NOW());
+(1, 'Admin TechNews', 'admin@technews.com', NOW(), "\$2y\$12\$AaQZwSwPUEPXsf/G0stPxu8z6tgiD.MyfhbfQm5GBFeM/.1xVVXeG", 'admin', NOW(), NOW());
 
 -- Kategori
 INSERT INTO `categories` (`id`, `name`, `slug`, `created_at`, `updated_at`) VALUES

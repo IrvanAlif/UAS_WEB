@@ -24,8 +24,8 @@ Route::post('/login', [AuthController::class, 'login'])
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
-// Admin routes (protected)
-Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
+// Admin routes — FIX: tambah middleware 'admin' untuk role check
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Articles CRUD

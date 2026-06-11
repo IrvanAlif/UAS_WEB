@@ -12,7 +12,6 @@
 @section('content')
 
 {{-- Stats --}}
-{{-- FIX: gunakan $todayCount dari controller, bukan query langsung di view --}}
 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 28px;">
     <div style="background:white; border:1px solid #e5e7eb; border-radius:10px; padding:20px;">
         <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.5px; color:#6b7280; margin-bottom:6px;">Total Published</div>
@@ -22,9 +21,10 @@
         <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.5px; color:#f97316; margin-bottom:6px;">Artikel Hari Ini</div>
         <div style="font-size:28px; font-weight:800;">{{ $todayCount }}</div>
     </div>
+    {{-- FIX: growth rate dari variabel controller, bukan hardcode --}}
     <div style="background:white; border:1px solid #e5e7eb; border-radius:10px; padding:20px;">
-        <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.5px; color:#10b981; margin-bottom:6px;">Growth Rate</div>
-        <div style="font-size:28px; font-weight:800; color:#10b981;">+12%</div>
+        <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.5px; color:#6b7280; margin-bottom:6px;">Growth Bulan Ini</div>
+        <div style="font-size:28px; font-weight:800; color:{{ $growthColor }};">{{ $growthLabel }}</div>
     </div>
 </div>
 
